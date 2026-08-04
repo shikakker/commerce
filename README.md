@@ -1,9 +1,46 @@
 # SvelteKit Commerce
 
-<img width="843" alt="sveltekit-commerce" src="https://user-images.githubusercontent.com/9113740/176811983-2bc99cac-e994-4c65-b8b2-5e2f845b3b8e.png">
+SvelteKit storefront prototype backed by the Shopify Storefront API.
 
-## Running Locally
+## Features
 
-- `yarn dev`: Install dependencies.
-- `yarn build`: Create a production build of the app.
-- `yarn preview`: Preview the production build.
+- Product and collection browsing.
+- Search and responsive product grids.
+- Product carousel and description UI.
+- Client-side shopping cart with Shopify cart loading and checkout URL support.
+- Reusable header, footer, icons, and cart components.
+
+## Tech stack
+
+- Svelte and SvelteKit
+- Shopify Storefront API
+- Tailwind CSS
+- PostCSS and Sass
+
+## Environment
+
+Create `.env` with Shopify Storefront API credentials:
+
+```env
+VITE_SHOPIFY_API_ENDPOINT=https://your-store.myshopify.com/api/2022-07/graphql.json
+VITE_SHOPIFY_STOREFRONT_API_TOKEN=your_storefront_token
+```
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+## Scripts
+
+- `npm run dev` — start SvelteKit.
+- `npm run build` — create a production build.
+- `npm run preview` — preview the build.
+- `npm run lint` — check formatting.
+- `npm run format` — format the project.
+
+## Status
+
+Storefront prototype. A real deployment requires valid Shopify configuration and production checkout testing.
