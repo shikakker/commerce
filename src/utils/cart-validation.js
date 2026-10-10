@@ -13,8 +13,11 @@ export function validateCartMutation(input, mode) {
   const cartId = requireId(input.cartId, 'cartId');
   const quantity = Number(input.quantity);
 
-  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > MAX_CART_QUANTITY) {
-    throw new RangeError(`quantity must be an integer between 1 and ${MAX_CART_QUANTITY}.`);
+  const minimumQuantity = mode === 'update' ? 0 : 1;
+  if (!Number.isSafeInteger(quantity) || quantity < minimumQuantity || quantity > MAX_CART_QUANTITY) {
+    throw new RangeError(
+      `quantity must be an integer between ${minimumQuantity} and ${MAX_CART_QUANTITY}.`
+    );
   }
 
   if (mode === 'add') {
