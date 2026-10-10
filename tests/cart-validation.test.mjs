@@ -25,3 +25,10 @@ test('update operations allow zero quantity to remove an existing line', () => {
     { cartId: 'gid://cart/1', lineId: 'gid://line/1', variantId: 'gid://variant/1', quantity: 0 }
   );
 });
+
+test('add operations default a missing quantity to one', () => {
+  assert.deepEqual(
+    validateCartMutation({ cartId: 'gid://cart/1', variantId: 'gid://variant/1' }, 'add'),
+    { cartId: 'gid://cart/1', variantId: 'gid://variant/1', quantity: 1 }
+  );
+});
