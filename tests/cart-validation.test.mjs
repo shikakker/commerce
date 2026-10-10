@@ -32,3 +32,10 @@ test('add operations default a missing quantity to one', () => {
     { cartId: 'gid://cart/1', variantId: 'gid://variant/1', quantity: 1 }
   );
 });
+
+test('cart reads require a bounded non-empty cart id', async () => {
+  const { validateCartId } = await import('../src/utils/cart-validation.js');
+  assert.throws(() => validateCartId(''));
+  assert.throws(() => validateCartId('x'.repeat(513)));
+  assert.equal(validateCartId('  gid://cart/1  '), 'gid://cart/1');
+});
