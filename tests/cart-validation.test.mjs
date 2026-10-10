@@ -15,3 +15,13 @@ test('requires cart and variant identifiers for add operations', () => {
     { cartId: 'gid://cart/1', variantId: 'gid://variant/1', quantity: 2 }
   );
 });
+
+test('update operations allow zero quantity to remove an existing line', () => {
+  assert.deepEqual(
+    validateCartMutation(
+      { cartId: 'gid://cart/1', lineId: 'gid://line/1', variantId: 'gid://variant/1', quantity: 0 },
+      'update'
+    ),
+    { cartId: 'gid://cart/1', lineId: 'gid://line/1', variantId: 'gid://variant/1', quantity: 0 }
+  );
+});
