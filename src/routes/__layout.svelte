@@ -5,7 +5,6 @@
   import ShoppingCart from '$components/ShoppingCart.svelte';
   import { getCartItems } from '../store';
   import { onMount } from 'svelte';
-  import { createCart } from '$utils/shopify';
 
   let cartId;
   let checkoutUrl;
@@ -28,18 +27,26 @@
   });
 
   async function callCreateCart() {
-    const cartRes = await createCart();
+    const response = await fetch('/cart.json', { method: 'POST' });
+    const payload = await response.json();
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cartCreatedAt', Date.now());
-      localStorage.setItem('cartId', JSON.stringify(cartRes.body?.data?.cartCreate?.cart?.id));
-      localStorage.setItem('cartUrl', JSON.stringify(cartRes.body?.data?.cartCreate?.cart?.checkoutUrl));
+    if (!response.ok || !payload.data?.id || !payload.data?.checkoutUrl) {
+      throw new Error(payload.error || 'Unable to create cart.');
     }
+
+    cartId = payload.data.id;
+    checkoutUrl = payload.data.checkoutUrl;
+    cartCreatedAt = Date.now();
+
+    localStorage.setItem('cartCreatedAt', JSON.stringify(cartCreatedAt));
+    localStorage.setItem('cartId', JSON.stringify(cartId));
+    localStorage.setItem('cartUrl', JSON.stringify(checkoutUrl));
   }
 
   async function loadCart() {
-    const res = await getCartItems();
-    cartItems = res?.body?.data?.cart?.lines?.edges;
+    const payload = await getCartItems();
+    cartItems = payload?.data?.cart?.lines?.edges || [];
+    checkoutUrl = payload?.data?.cart?.checkoutUrl || checkoutUrl;
   }
 
   let showCart = false;
@@ -54,14 +61,24 @@
   }
 
   function getCheckoutUrl() {
-    window.open(checkoutUrl, '_blank');
-    loading = false;
+    if (!checkoutUrl) {
+      loading = false;
+      return;
+    }
+    try {
+      const target = new URL(checkoutUrl);
+      if (target.protocol !== 'https:') throw new Error('Checkout URL must use HTTPS.');
+      window.open(target.toString(), '_blank', 'noopener,noreferrer');
+    } finally {
+      loading = false;
+    }
   }
 
   async function addToCart(event) {
     await fetch('/cart.json', {
       method: 'PATCH',
-      body: JSON.stringify({ cartId: cartId, variantId: event.detail.body })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartId: cartId, variantId: event.detail.body, quantity: 1 })
     });
     // Wait for the API to finish before updating cart items
     await loadCart();
@@ -70,6 +87,7 @@
   async function removeProduct(event) {
     await fetch('/cart.json', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         cartId,
         lineId: event.detail.body.lineId,

@@ -2,6 +2,10 @@ export async function shopifyFetch({ query, variables }) {
   const endpoint = import.meta.env.VITE_SHOPIFY_API_ENDPOINT;
   const key = import.meta.env.VITE_SHOPIFY_STOREFRONT_API_TOKEN;
 
+  if (!endpoint || !key) {
+    throw new Error('Shopify Storefront API configuration is missing.');
+  }
+
   try {
     const result = await fetch(endpoint, {
       method: 'POST',
@@ -11,9 +15,19 @@ export async function shopifyFetch({ query, variables }) {
       },
       body: { query, variables } && JSON.stringify({ query, variables })
     });
+    const body = await result.json();
+
+    if (!result.ok) {
+      throw new Error(body?.errors?.[0]?.message || `Shopify request failed with status ${result.status}.`);
+    }
+
+    if (body?.errors?.length) {
+      throw new Error(body.errors[0].message || 'Shopify GraphQL request failed.');
+    }
+
     return {
       status: result.status,
-      body: await result.json()
+      body
     };
   } catch (error) {
     console.error('Error:', error);
@@ -325,6 +339,10 @@ export async function createCart() {
             checkoutUrl
             id
           }
+          userErrors {
+            field
+            message
+          }
         }
       }
     `,
@@ -362,6 +380,10 @@ export async function addToCart({ cartId, variantId }) {
     query: `
       mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
         cartLinesAdd(cartId: $cartId, lines: $lines) {
+          userErrors {
+            field
+            message
+          }
           cart {
             lines(first: 100) {
               edges {
