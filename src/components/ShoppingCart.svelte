@@ -30,8 +30,7 @@
   }
   async function checkout() {
     loading = true;
-    let checkoutUrl = localStorage.getItem('cartUrl');
-    window.open(JSON.parse(checkoutUrl), '_blank');
+    dispatch('getCheckoutUrl');
   }
 </script>
 
@@ -64,10 +63,10 @@
           />
           <div class="ml-4 flex w-full flex-col justify-between">
             <div class="flex w-full justify-between">
-              <di>
+              <div>
                 <p class="text-lg font-medium">{item.node.merchandise.product.title}</p>
                 <p class="text-sm">{item.node.merchandise.title}</p>
-              </di>
+              </div>
               <p class="font-medium">${item.node.estimatedCost.totalAmount.amount}</p>
             </div>
           </div>
