@@ -7,10 +7,14 @@ function requireId(value, field) {
   return value.trim();
 }
 
+export function validateCartId(value) {
+  return requireId(value, 'cartId');
+}
+
 export function validateCartMutation(input, mode) {
   if (!input || typeof input !== 'object') throw new TypeError('Cart payload is required.');
 
-  const cartId = requireId(input.cartId, 'cartId');
+  const cartId = validateCartId(input.cartId);
   const quantity = mode === 'add' && input.quantity == null ? 1 : Number(input.quantity);
 
   const minimumQuantity = mode === 'update' ? 0 : 1;
