@@ -1,7 +1,18 @@
-import { createCart, addToCart, updateCart } from '../utils/shopify.js';
-import { validateCartMutation } from '../utils/cart-validation.js';
+import { createCart, addToCart, updateCart, loadCart } from '../utils/shopify.js';
+import { validateCartId, validateCartMutation } from '../utils/cart-validation.js';
 
 const json = (status, body) => ({ status, body });
+
+export async function get({ url }) {
+  try {
+    const cartId = validateCartId(url.searchParams.get('cartId'));
+    const response = await loadCart(cartId);
+    return json(200, { data: response.body?.data ?? null });
+  } catch (error) {
+    const status = error instanceof TypeError ? 400 : 502;
+    return json(status, { error: error instanceof Error ? error.message : 'Cart load failed.' });
+  }
+}
 
 export async function post() {
   try {
